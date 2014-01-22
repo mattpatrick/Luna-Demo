@@ -1,8 +1,10 @@
 var request = require('request');
 var http = require('http'),
 fs = require('fs'),
+    index = fs.readFileSync(__dirname + '/index.html'),
+    accounts = fs.readFileSync(__dirname + '/accounts.html');
 // NEVER use a Sync function except at start-up!
-index = fs.readFileSync(__dirname + '/index.html');
+
 var url = require('url');
 var qs = require('querystring');
 var Parse = require('parse').Parse;
@@ -36,7 +38,7 @@ var app = http.createServer(function(req, res) {
     // });
     case '/accounts'
             res.writeHead(200, {'Content-Type': 'text/html'});
-            res.end(index);
+            res.end(accounts);
     }
 
     //comment
