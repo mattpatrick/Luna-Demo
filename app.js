@@ -34,13 +34,15 @@ var app = http.createServer(function(req, res) {
         //                   }
         //         });
     // });
+    case '/accounts'
+            res.writeHead(200, {'Content-Type': 'text/html'});
+            res.end(index);
     }
 
     //comment
 
 
-    res.writeHead(200, {'Content-Type': 'text/html'});
-    res.end(index);
+
 });
 
 // Socket.io server listens to our app
