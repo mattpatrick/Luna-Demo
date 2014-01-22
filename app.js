@@ -20,6 +20,7 @@ var app = http.createServer(function(req, res) {
     switch(path){
     case '/request':
         console.log("Received request from arduino!!!!");
+        sendhubRequest();
 
         // Parse.initialize("mQahqHqIEatXfIJBvRORQMEYP924WcHQWYefEiKw", "Nb1L5nL4JFCKy9pCAE3mvUXWDL3SgCUpn8SqnLMF");
         // var SpamObject = Parse.Object.extend("Spam");
