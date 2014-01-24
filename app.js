@@ -47,7 +47,7 @@ var io = require('socket.io').listen(app);
 
 // Send current time to all connected clients
 function sendTime() {
-    io.sockets.emit('time', { time: new Date().toJSON()) });
+    io.sockets.emit('time', { time: new Date().toJSON() });
 }
 
 
