@@ -13,7 +13,7 @@ var Parse = require('parse').Parse;
 // Send index.html to all requests
 var app = http.createServer(function(req, res) {
 
-                res.writeHead(200, {'Content-Type': 'text/html'});
+            res.writeHead(200, {'Content-Type': 'text/html'});
             res.end(accounts);
     var path = url.parse(req.url).pathname;
     var fsCallback = function(error,data){
@@ -32,7 +32,7 @@ var app = http.createServer(function(req, res) {
         res.writeHead(200, {'Content-Type': 'text/html'});
         res.end(accounts);
 
-    case '/admin'
+    case '/admin':
         res.writeHead(200, {'Content-Type': 'text/html'});
         res.end(admin);        
 
