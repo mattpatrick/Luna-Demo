@@ -3,6 +3,7 @@ var http = require('http'),
 fs = require('fs'),
     index = fs.readFileSync(__dirname + '/index.html'),
     accounts = fs.readFileSync(__dirname + '/accounts.html');
+
 // NEVER use a Sync function except at start-up!
 
 var url = require('url');
@@ -27,26 +28,17 @@ var app = http.createServer(function(req, res) {
         console.log("Received request from arduino!!!!");
         sendhubRequest();
 
-        // Parse.initialize("mQahqHqIEatXfIJBvRORQMEYP924WcHQWYefEiKw", "Nb1L5nL4JFCKy9pCAE3mvUXWDL3SgCUpn8SqnLMF");
-        // var SpamObject = Parse.Object.extend("Spam");
-        // var spamObject = new SpamObject();
-        //           spamObject.save({phone: number,Paid: false, transactionIDNum: transactionId}, {
-        //                   success: function(object) {
-        //             console.log('saved new object');
-        //                   },
-        //                   error: function(model, error) {
-        //             console.log(error);
-        //                   }
-        //         });
-    // });
-    case '/accounts'
-            // res.writeHead(200, {'Content-Type': 'text/html'});
-            // res.end(accounts);
-    
+    case '/accounts':
+        res.writeHead(200, {'Content-Type': 'text/html'});
+        res.end(accounts);
+
+    case '/admin'
+        res.writeHead(200, {'Content-Type': 'text/html'});
+        res.end(admin);        
 
     //comment
 
-
+    }
 
 });
 
@@ -55,9 +47,12 @@ var io = require('socket.io').listen(app);
 
 // Send current time to all connected clients
 function sendTime() {
-    io.sockets.emit('time', { time: new Date().toJSON() });
+    io.sockets.emit('time', { time: new Date().toJSON())
 }
 
+
+
+/*****************************MESSAGING REQUESTS*******************************/ 
 
 // This is if we want to send the email
 function sendEmail() {
@@ -77,13 +72,10 @@ function sendEmail() {
     });
 }
 
-// This is not working yet
+// This works, should eventually take input phone number and message
 function sendhubRequest(){
 
-
     var request = require("request");
-
-
     request({
         uri: 'https://api.sendhub.com/v1/messages/?username=7652129586\&api_key=9e893891e0de6a833c06a5b5d9a2b3b5a08e103c',
         header: {'Content-type': 'application/json'},
@@ -95,24 +87,31 @@ function sendhubRequest(){
             console.log("Unable to send via sendhub: " + error);
             }
         });
+}
 
+
+function verifyUser(authCode){
 
 }
 
 // Send current time every 10 secs
 // setInterval(sendTime, 3000);
 
-// Emit welcome message on connection
+// This handles the socket connection 
 io.sockets.on('connection', function(socket) {
     socket.emit('welcome', { message: 'Welcome!' });
 
     socket.on('i am client', console.log);
     socket.on('button', function(){
         socket.emit('success',{successMessage:'You have sent a successful ______ request'});
-        // sendEmail();
-        // sendEmail();
+
         sendhubRequest();
+    });
+
+    socket.on('formInfo', function(){
+
     });
 });
 
+// app.listen();
 app.listen(8080);
