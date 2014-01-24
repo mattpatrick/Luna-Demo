@@ -32,9 +32,9 @@ var app = http.createServer(function(req, res) {
         res.writeHead(200, {'Content-Type': 'text/html'});
         res.end(accounts);
 
-    case '/admin':
-        res.writeHead(200, {'Content-Type': 'text/html'});
-        res.end(admin);        
+    // case '/admin':
+    //     res.writeHead(200, {'Content-Type': 'text/html'});
+    //     res.end(admin);        
 
     //comment
 
@@ -46,9 +46,9 @@ var app = http.createServer(function(req, res) {
 var io = require('socket.io').listen(app);
 
 // Send current time to all connected clients
-function sendTime() {
-    io.sockets.emit('time', { time: new Date().toJSON() });
-}
+// function sendTime() {
+//     io.sockets.emit('time', { time: new Date().toJSON() });
+// }
 
 
 
