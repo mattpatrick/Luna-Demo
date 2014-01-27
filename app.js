@@ -26,7 +26,7 @@ var app = http.createServer(function(req, res) {
     switch(path){
     case '/request':
         console.log("Received request from arduino!!!!");
-        sendhubRequest();
+        //sendhubRequest();
 
     case '/accounts':
         res.writeHead(200, {'Content-Type': 'text/html'});
@@ -73,7 +73,8 @@ function sendEmail() {
 }
 
 // This works, should eventually take input phone number and message
-function sendhubRequest(){
+function sendhubRequest(number){
+    number 
 
     var request = require("request");
     request({
@@ -105,13 +106,32 @@ io.sockets.on('connection', function(socket) {
     socket.on('button', function(){
         socket.emit('success',{successMessage:'You have sent a successful ______ request'});
 
-        sendhubRequest();
+       // sendhubRequest();
     });
 
     socket.on('formInfo', function(){
 
     });
 });
+
+function newParseEntry (timeStamp,bedState,number){
+
+
+    Parse.initialize("i2cR1ovx22opix8dCEy53BG8BAJDBeVq6WlU8DqZ", "i2cR1ovx22opix8dCEy53BG8BAJDBeVq6WlU8DqZ");
+                var SpamObject = Parse.Object.extend("Luna");
+                    var spamObject = new SpamObject();
+                      spamObject.save({time: timeStamp,state: bedState}, {
+                              success: function(object) {
+                        console.log('saved new object');
+                              },
+                              error: function(model, error) {
+                        console.log(error);
+                              }
+                    });
+
+}
+
+
 
 // app.listen();
 app.listen(8080);
