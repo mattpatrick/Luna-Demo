@@ -16,6 +16,10 @@ var app = http.createServer(function(req, res) {
             res.writeHead(200, {'Content-Type': 'text/html'});
             res.end(accounts);
     var path = url.parse(req.url).pathname;
+    var query = req.url.split('?')[1];
+    var queryParsed = qs.parse(query);
+    var queryText = JSON.stringify(queryParsed); 
+//    console.log("Query = " + queryText);
     var fsCallback = function(error,data){
         if (error) throw error;
     }
@@ -25,9 +29,12 @@ var app = http.createServer(function(req, res) {
 
     switch(path){
     case '/request':
-        console.log("Received request from arduino!!!!");
+        console.log("Received request with query" + queryText);
         //sendhubRequest();
-
+	var userId = queryParsed.id;
+	var timeStamp = queryParsed.time;	
+	var bedState = queryParsed.bed;	
+	newParseEntry (userId,timeStamp,bedState)
     case '/accounts':
         res.writeHead(200, {'Content-Type': 'text/html'});
         res.end(accounts);
@@ -114,18 +121,22 @@ io.sockets.on('connection', function(socket) {
     });
 });
 
-function newParseEntry (timeStamp,bedState,number){
+function newParseEntry (userId,timeStamp,bedState){
 
 
-    Parse.initialize("i2cR1ovx22opix8dCEy53BG8BAJDBeVq6WlU8DqZ", "i2cR1ovx22opix8dCEy53BG8BAJDBeVq6WlU8DqZ");
-                var SpamObject = Parse.Object.extend("Luna");
+    Parse.initialize("i2cR1ovx22opix8dCEy53BG8BAJDBeVq6WlU8DqZ", "yKIG2eCXHBPBJD5FfbT2tggOmCDSv6Eov7sgkeZc");
+              	var idTemp = userId;
+		 
+		query[name] = bedState;	 
+		 var SpamObject = Parse.Object.extend("lightData");
                     var spamObject = new SpamObject();
-                      spamObject.save({time: timeStamp,state: bedState}, {
+                      spamObject.save({time: timeStamp}, {
                               success: function(object) {
                         console.log('saved new object');
                               },
                               error: function(model, error) {
-                        console.log(error);
+                              var errorString = JSON.stringify(error);
+				console.log("Parse error: " + errorString);
                               }
                     });
 
