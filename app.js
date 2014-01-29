@@ -10,6 +10,11 @@ var url = require('url');
 var qs = require('querystring');
 var Parse = require('parse').Parse;
 
+// Global variables - mainly API codes
+var parseAppId = "i2cR1ovx22opix8dCEy53BG8BAJDBeVq6WlU8DqZ"; 
+var parseJsId = "yKIG2eCXHBPBJD5FfbT2tggOmCDSv6Eov7sgkeZc";
+
+
 // Send index.html to all requests
 var app = http.createServer(function(req, res) {
 
@@ -34,7 +39,9 @@ var app = http.createServer(function(req, res) {
 	var userId = queryParsed.id;
 	var timeStamp = queryParsed.time;	
 	var bedState = queryParsed.bed;	
-	newParseEntry (userId,timeStamp,bedState)
+	authorizeCode(userId);
+//	newParseEntry (userId,timeStamp,bedState)
+
     case '/accounts':
         res.writeHead(200, {'Content-Type': 'text/html'});
         res.end(accounts);
@@ -81,7 +88,7 @@ function sendEmail() {
 
 // This works, should eventually take input phone number and message
 function sendhubRequest(number){
-    number 
+    //number 
 
     var request = require("request");
     request({
@@ -98,9 +105,9 @@ function sendhubRequest(number){
 }
 
 
-function verifyUser(authCode){
 
-}
+
+
 
 // Send current time every 10 secs
 // setInterval(sendTime, 3000);
@@ -124,25 +131,40 @@ io.sockets.on('connection', function(socket) {
 function newParseEntry (userId,timeStamp,bedState){
 
 
-    Parse.initialize("i2cR1ovx22opix8dCEy53BG8BAJDBeVq6WlU8DqZ", "yKIG2eCXHBPBJD5FfbT2tggOmCDSv6Eov7sgkeZc");
-              	var idTemp = userId;
-		 
-		query[name] = bedState;	 
-		 var SpamObject = Parse.Object.extend("lightData");
-                    var spamObject = new SpamObject();
-                      spamObject.save({time: timeStamp}, {
-                              success: function(object) {
-                        console.log('saved new object');
-                              },
-                              error: function(model, error) {
-                              var errorString = JSON.stringify(error);
-				console.log("Parse error: " + errorString);
-                              }
-                    });
+    Parse.initialize(parseAppId, parseJsId);
+
+		 var LunaObject = Parse.Object.extend("lightData");
+                    var lunaObject = new LunaObject();
+			lunaObject.set("time",timeStamp);
+			lunaObject.set(userId,bedState);
+			lunaObject.save(null,{
+				success: function(lunaObject){
+				console.log('New object saved? with objectId: ' + lunaObject.id);
+				},
+				error: function(lunaObject, error){
+				console.log('Failed to create new object, error:' + error.description);
+			}
+		});
 
 }
 
 
+function authorizeCode(authCode) {	
 
+Parse.initialize(parseAppId, parseJsId);
+var AuthObject = Parse.Object.extend("authCode");
+	var query = new Parse.Query(AuthObject);
+	query.descending("auth");
+	query.equalTo("foo",authCode);
+	query.first({
+		success: function(results){
+			console.log("Successfully retrieved " + results);
+		},
+		error: function(error){
+			alert("Error: " + error.code + " " + error.message);
+		}		
+
+	});
+}
 // app.listen();
 app.listen(8080);
