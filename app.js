@@ -1,6 +1,6 @@
 var request = require('request');
 var http = require('http'),
-fs = require('fs'),
+	fs = require('fs'),
     index = fs.readFileSync(__dirname + '/index.html'),
     accounts = fs.readFileSync(__dirname + '/accounts.html');
 
@@ -39,7 +39,18 @@ var app = http.createServer(function(req, res) {
 	var userId = queryParsed.id;
 	var timeStamp = queryParsed.time;	
 	var bedState = queryParsed.bed;	
-	authorizeCode(userId);
+    console.log("userId = "+userId);
+    console.log("timeStamp = "+timeStamp);
+    console.log("bedState = "+bedState);
+
+	// var authValid = authorizeCode(userId);
+	// console.log("authValid = " + authValid);
+	// if(authValid==true){
+	// 	console.log("This id is valid");	
+	// }
+	// else {
+	// 	console.log("This id is invalid");
+	// }
 //	newParseEntry (userId,timeStamp,bedState)
 
     case '/accounts':
@@ -149,22 +160,31 @@ function newParseEntry (userId,timeStamp,bedState){
 }
 
 
-function authorizeCode(authCode) {	
+function authorizeCode(authId) {	
 
 Parse.initialize(parseAppId, parseJsId);
 var AuthObject = Parse.Object.extend("authCode");
+	var result = false;
 	var query = new Parse.Query(AuthObject);
-	query.descending("auth");
-	query.equalTo("foo",authCode);
-	query.first({
-		success: function(results){
-			console.log("Successfully retrieved " + results);
+//	query.descending("auth");
+//	query.equalTo("phone","7652129586");
+	var numAuth = query.count();
+		query.count({
+		success: function(number){
+			console.log("There are this many matching objects: " + number);
+		var promise = Parse.Promise.as("The good result.");
+
+	
+
 		},
 		error: function(error){
 			alert("Error: " + error.code + " " + error.message);
 		}		
-
+		
 	});
+		console.log("numAuth = " + numAuth);
+//		return numAuth; 
+		return promise;
 }
 // app.listen();
 app.listen(8080);
