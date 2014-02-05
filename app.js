@@ -10,12 +10,21 @@ var url = require('url');
 var qs = require('querystring');
 var Parse = require('parse').Parse;
 
+// Global variables - mainly API codes
+var parseAppId = "i2cR1ovx22opix8dCEy53BG8BAJDBeVq6WlU8DqZ"; 
+var parseJsId = "yKIG2eCXHBPBJD5FfbT2tggOmCDSv6Eov7sgkeZc";
+
+
 // Send index.html to all requests
 var app = http.createServer(function(req, res) {
 
             res.writeHead(200, {'Content-Type': 'text/html'});
             res.end(accounts);
     var path = url.parse(req.url).pathname;
+    var query = req.url.split('?')[1];
+    var queryParsed = qs.parse(query);
+    var queryText = JSON.stringify(queryParsed); 
+//    console.log("Query = " + queryText);
     var fsCallback = function(error,data){
         if (error) throw error;
     }
@@ -25,8 +34,13 @@ var app = http.createServer(function(req, res) {
 
     switch(path){
     case '/request':
-        console.log("Received request from arduino!!!!");
-        sendhubRequest();
+        console.log("Received request with query" + queryText);
+        //sendhubRequest();
+	var userId = queryParsed.id;
+	var timeStamp = queryParsed.time;	
+	var bedState = queryParsed.bed;	
+	authorizeCode(userId);
+//	newParseEntry (userId,timeStamp,bedState)
 
     case '/accounts':
         res.writeHead(200, {'Content-Type': 'text/html'});
@@ -73,7 +87,8 @@ function sendEmail() {
 }
 
 // This works, should eventually take input phone number and message
-function sendhubRequest(){
+function sendhubRequest(number){
+    //number 
 
     var request = require("request");
     request({
@@ -90,9 +105,9 @@ function sendhubRequest(){
 }
 
 
-function verifyUser(authCode){
 
-}
+
+
 
 // Send current time every 10 secs
 // setInterval(sendTime, 3000);
@@ -105,7 +120,7 @@ io.sockets.on('connection', function(socket) {
     socket.on('button', function(){
         socket.emit('success',{successMessage:'You have sent a successful ______ request'});
 
-        sendhubRequest();
+       // sendhubRequest();
     });
 
     socket.on('formInfo', function(){
@@ -113,5 +128,43 @@ io.sockets.on('connection', function(socket) {
     });
 });
 
+function newParseEntry (userId,timeStamp,bedState){
+
+
+    Parse.initialize(parseAppId, parseJsId);
+
+		 var LunaObject = Parse.Object.extend("lightData");
+                    var lunaObject = new LunaObject();
+			lunaObject.set("time",timeStamp);
+			lunaObject.set(userId,bedState);
+			lunaObject.save(null,{
+				success: function(lunaObject){
+				console.log('New object saved? with objectId: ' + lunaObject.id);
+				},
+				error: function(lunaObject, error){
+				console.log('Failed to create new object, error:' + error.description);
+			}
+		});
+
+}
+
+
+function authorizeCode(authCode) {	
+
+Parse.initialize(parseAppId, parseJsId);
+var AuthObject = Parse.Object.extend("authCode");
+	var query = new Parse.Query(AuthObject);
+	query.descending("auth");
+	query.equalTo("foo",authCode);
+	query.first({
+		success: function(results){
+			console.log("Successfully retrieved " + results);
+		},
+		error: function(error){
+			alert("Error: " + error.code + " " + error.message);
+		}		
+
+	});
+}
 // app.listen();
 app.listen(8080);
